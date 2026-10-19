@@ -574,6 +574,19 @@ class FitEditor:
                             _logger.debug("    No product field; rebuilding record")
                             message = self._rebuild_device_info(message)
                             message.product = target_device  # type: ignore
+                            # Such records also tend to omit the fields Garmin Connect
+                            # uses to identify the recording device. Fill them in so
+                            # this record is recognised as the creator.
+                            if message.device_index is None:
+                                message.device_index = 0  # creator
+                            if message.source_type is None:
+                                message.source_type = 5  # local
+                            if message.serial_number is None:
+                                message.serial_number = (
+                                    self.profile.serial_number
+                                    if self.profile and self.profile.serial_number
+                                    else 1234567890
+                                )
 
                         # have not seen this set explicitly in testing, but probable good to set regardless
                         if message.garmin_product is not None:  # pragma: no cover
